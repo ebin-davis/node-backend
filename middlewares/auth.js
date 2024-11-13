@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
-const jwtSecret =
-  "393601b1104589646c50d779577c18181cc51ee37cf35bb4762ca7823d7e5a7fd4036e";
+const dotenv=require('dotenv')
+dotenv.config()
+const jwtSecret =process.env.JWT
   exports.adminAuth = (req, res, next) => {
     console.log(req.cookies);
     const token = req.cookies.jwt;
@@ -22,6 +23,7 @@ const jwtSecret =
   };
 exports.userAuth = (req, res, next) => {
   const token = req.cookies.jwt;
+  console.log(token);
   if (token) {
     jwt.verify(token, jwtSecret, (err, decodedToken) => {
       if (err) {

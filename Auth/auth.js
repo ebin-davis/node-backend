@@ -1,10 +1,12 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const jwtSecret =
-  "393601b1104589646c50d779577c18181cc51ee37cf35bb4762ca7823d7e5a7fd4036e";
+const dotenv = require("dotenv");
+dotenv.config();
+const jwtSecret = process.env.JWT;
 exports.register = async (req, res, next) => {
   const { username, password } = req.body;
+  console.log("register" + req.body);
   if (password.length < 6) {
     return res.status(400).json({ message: "Password less than 6 characters" });
   }
@@ -25,14 +27,15 @@ exports.register = async (req, res, next) => {
         expiresIn: maxAge, // 3hrs in sec
       }
     );
+    console.log("token in register route ", token);
     res.cookie("jwt", token, {
       httpOnly: true,
       maxAge: maxAge * 1000, // 3hrs in ms
     });
-
     // Respond with success
     return res.status(200).json({
       message: "User successfully created",
+      token,
       user,
     });
   } catch (error) {
@@ -44,19 +47,18 @@ exports.register = async (req, res, next) => {
   }
 };
 
-exports.otp=async(req,res,next)=>{
-  const {otp}=req.body;
-  if(otp===1234){
+exports.otp = async (req, res, next) => {
+  const { otp } = req.body;
+  if (otp === "1234") {
     return res.status(200).json({
-      message:"Otp verification completed"
-    })
-  }
-  else{
+      message: "Otp verification completed",
+    });
+  } else {
     return res.status(400).json({
-      message:"Otp is incorrect"
-    })
+      message: "Otp is incorrect",
+    });
   }
-}
+};
 
 exports.login = async (req, res, next) => {
   const { username, password } = req.body;
@@ -150,17 +152,16 @@ exports.update = async (req, res, next) => {
 };
 exports.getUsers = async (req, res, next) => {
   await User.find({})
-    .then(users => {
-      const userFunction = users.map(user => {
-        const container = {}
-        container.username = user.username
-        container.role = user.role
-        return container
-      })
-      res.status(200).json({ user: userFunction })
+    .then((users) => {
+      const userFunction = users.map((user) => {
+        const container = {};
+        container.username = user.username;
+        container.role = user.role;
+        return container;
+      });
+      res.status(200).json({ user: userFunction });
     })
-    .catch(err =>
+    .catch((err) =>
       res.status(401).json({ message: "Not successful", error: err.message })
-    )
-}
-
+    );
+};
